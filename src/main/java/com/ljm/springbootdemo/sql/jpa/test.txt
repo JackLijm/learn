@@ -1,0 +1,10 @@
+#查询所有users
+http://localhost:8080/jpaUsers
+#增加user
+http://localhost:8080/addJpaUser?name="李佳明"&password="123"&sex="boy"
+#根据id查询user
+http://localhost:8080/jpaUser/21
+#根据姓名查询
+http://localhost:8080/findUser/"李佳明"
+#根据id删除
+http://localhost:8080/delJpaUser/21

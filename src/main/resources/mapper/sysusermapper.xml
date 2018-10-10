@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.ljm.springbootdemo.dao.security.SysUserDao">
+    <!-- security 登陆信息表-->
+    <sql id="Base_Column_List">
+      username,password,enabled
+    </sql>
+
+    <select id="getUserById" resultType="com.ljm.springbootdemo.domain.security.SysUser">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM SYSUSER
+        WHERE id = #{id}
+    </select>
+
+    <select id="getUserByUserName" resultType="com.ljm.springbootdemo.domain.security.SysUser">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM SYSUSER
+        WHERE username = #{username}
+    </select>
+
+    <update id="updateUser">
+        UPDATE
+        SYSUSER
+        SET username = #{user.username},
+        WHERE id = #{user.id}
+    </update>
+
+
+    <update id="insertUser">
+        INSERT into
+        SYSUSER
+        VALUES (
+         #(user.id),
+         #(user.username),
+         #(user.password),
+         #(user.enabled)
+        )
+    </update>
+
+    <delete id="deleteUserById">
+        DELETE sysuser WHERE id=#{id}
+    </delete>
+
+    <select id="getPermList" resultType="com.ljm.springbootdemo.domain.security.SysPermission">
+        select p.* FROM
+        sysuser u,sysrole r,user_role ur,syspermission p,role_permission rp
+        WHERE u.username =#{username} AND
+              ur.userid = u.id AND
+              ur.roleid = r.id AND
+              rp.roleid = r.id AND
+              rp.permissionid = p.id
+    </select>
+
+    <insert id="addUser"  parameterType="com.ljm.springbootdemo.domain.security.SysUser">
+        <selectKey keyProperty="id" order="BEFORE" resultType="Integer">
+            SELECT SEQ_AUTH_ID.nextval FROM dual
+        </selectKey>
+           INSERT INTO SYSUSER(id,username,password,enabled) VALUES (#{id},#{username},#{password},'1')
+    </insert>
+    <insert id="giveRoleToUser" >
+        <selectKey keyProperty="id" order="BEFORE" resultType="Integer">
+            SELECT SEQ_AUTH_ID.nextval FROM dual
+        </selectKey>
+        INSERT INTO USER_ROLE(id,userid,roleid) VALUES (#{id},#{userid},#{roleid})
+    </insert>
+</mapper>

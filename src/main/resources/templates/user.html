@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/thymeleaf-extras-springsecurity3">
+<head>
+    <title>添加用户</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <script type="text/javascript" src="jquery.js"></script>
+    <script>
+        $(function () {
+            //查询角色表给用户赋值
+            $.post("http://localhost:8080/getAllRoles", {}, function (result) {
+                for (role in result) {
+                    $("#roleCheck").append("<option value='" + result[role].id + "'>" + result[role].rolename + "</option>");
+                }
+            })
+        });
+    </script>
+</head>
+<body>
+
+<form th:action="@{/adduser}" method="post">
+    <div><label>用户名：</label><input type="text" name="username"/></div>
+    <div><label>密码 ：</label><input type="password" name="password"/></div>
+    <div>
+        <select id="roleCheck" name="roleid">
+        </select>
+    </div>
+    <div><input type="submit" value="注册"/></div>
+</form>
+</body>
+</html>
