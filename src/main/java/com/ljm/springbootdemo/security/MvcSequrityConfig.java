@@ -1,11 +1,17 @@
 package com.ljm.springbootdemo.security;
 
 import com.ljm.springbootdemo.dao.security.SysUserDao;
+import com.ljm.springbootdemo.security.permission.MyAccessDecisionManager;
+import com.ljm.springbootdemo.security.permission.MyFilterSecurityInterceptor;
+import com.ljm.springbootdemo.security.permission.MySecurityMetadataSource;
 import com.ljm.springbootdemo.security.service.CustomAuthenticationProvider;
+import org.apache.catalina.servlet4preview.GenericFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.AccessDecisionManager;
+import org.springframework.security.access.SecurityMetadataSource;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
@@ -13,10 +19,20 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.web.access.intercept.FilterInvocationSecurityMetadataSource;
+import org.springframework.security.web.access.intercept.FilterSecurityInterceptor;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
+import org.springframework.web.filter.GenericFilterBean;
 
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
 import javax.sql.DataSource;
+import java.io.IOException;
 
 @Configuration
 @EnableWebSecurity()
@@ -29,7 +45,6 @@ public class MvcSequrityConfig extends WebSecurityConfigurerAdapter {
     private LogoutHandler logoutHandler;
 
     @Qualifier("druibDataSource")
-
     @Autowired
     private DataSource dataSource;
 
@@ -46,6 +61,15 @@ public class MvcSequrityConfig extends WebSecurityConfigurerAdapter {
     public BCryptPasswordEncoder bCryptPasswordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
+
+
+    @Autowired
+    public FilterInvocationSecurityMetadataSource mySecurityMetadataSource;
+    @Autowired
+    public AccessDecisionManager myAccessDecisionManager;
+    @Autowired
+    private MyFilterSecurityInterceptor myFilterSecurityInterceptor;
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
@@ -73,7 +97,10 @@ public class MvcSequrityConfig extends WebSecurityConfigurerAdapter {
                     .addLogoutHandler(logoutHandler)
 //                指定登出时要删除的cookie名字
                     .deleteCookies("username","pwd")
-                    .permitAll();
+                    .permitAll()
+                .and()
+                //在默认的FilterSecurityInterceptor前面再加个自定义的拦截器
+                .addFilterBefore(myFilterSecurityInterceptor,FilterSecurityInterceptor.class);
     }
 
     @Override

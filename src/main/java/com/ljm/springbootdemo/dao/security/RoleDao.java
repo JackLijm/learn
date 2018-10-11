@@ -13,7 +13,7 @@ public interface RoleDao {
 
     SysUser getRoleById(@Param("id") int id);
 
-    int updateUser(@Param("role") SysRole role);
+    int updateRole(@Param("role") SysRole role);
 
     int insertRole(@Param("role") SysRole role);
 
